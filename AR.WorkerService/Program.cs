@@ -1,9 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
+using AR.WorkerService.Configuration;
+using AR.WorkerService.Jobs;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Quartz;
 
 namespace AR.WorkerService
 {
@@ -18,7 +16,16 @@ namespace AR.WorkerService
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddHostedService<Worker>();
+                    services.AddQuartz(q => {
+
+                        q.UseMicrosoftDependencyInjectionJobFactory();
+
+                        q.AddJobAndTrigger<ExampleJob>(hostContext.Configuration);
+                        q.AddJobAndTrigger<ExampleJob2>(hostContext.Configuration);
+                    });
+
+                    services.AddQuartzHostedService(
+                       q => q.WaitForJobsToComplete = true);
                 });
     }
 }
