@@ -12,8 +12,14 @@ namespace AR.WorkerService
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        // https://www.fixedbuffer.com/worker-service-como-crear-un-servicio-net-core-3-multiplataforma/
+        public static IHostBuilder CreateHostBuilder(string[] args) {
+
+            return Host.CreateDefaultBuilder(args)
+                .UseWindowsService(options => { // Install service in Windows
+                    options.ServiceName = "ExampleServiceName";
+                }) 
+                .UseSystemd() // Install service in Linux
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddQuartz(q => {
@@ -27,5 +33,7 @@ namespace AR.WorkerService
                     services.AddQuartzHostedService(
                        q => q.WaitForJobsToComplete = true);
                 });
+        }
+           
     }
 }
